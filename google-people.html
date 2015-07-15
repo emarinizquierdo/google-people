@@ -36,6 +36,38 @@ Example:
             position: relative;
         }
         
+        #googleSignin {
+            display: none;
+            padding-right: 45px;
+            height: 35px;
+            background: none;
+            border: none;
+            background-size: 35px 35px;
+            background-position: right center;
+            background-repeat: no-repeat;
+            border-radius: 4px;
+            color: white;
+            font-family: "Merriweather Sans", sans-serif;
+            font-size: 14px;
+            margin-bottom: 15px;
+            width: 205px;
+            border-bottom: 2px solid transparent;
+            border-left: 1px solid transparent;
+            border-right: 1px solid transparent;
+            box-shadow: 0 4px 2px -2px gray;
+            text-shadow: rgba(0, 0, 0, 0.5) -1px -1px 0;
+            border-color: #111;
+            background-color: #222;
+            text-shadow: #333 -1px -1px 0;
+            background-image: url(http://dl.dropbox.com/u/109135764/gplus.png);
+            padding-right: 45px;
+            cursor: pointer;
+        }
+        
+        #inputWrapper {
+            display: none;
+        }
+        
         .input-wrapper {
             @apply(--layout-horizontal);
         }
@@ -45,13 +77,10 @@ Example:
         }
         
         #suggestionsWrapper {
+            display: none;
             background-color: white;
-        }
-        
-        :host[suggestions-in-overlay="true"] #suggestionsWrapper {
-            width: 100%;
-            position: absolute;
-            z-index: 1000;
+            max-height: 400px;
+            overflow-y: auto;
         }
         
         paper-item {
@@ -60,6 +89,10 @@ Example:
         
         #clear {
             display: none;
+            width: 20px;
+            position: absolute;
+            top: 0;
+            right: 0;
         }
         
         .gpeople-avatar {
@@ -72,14 +105,15 @@ Example:
     </style>
 
     <template>
-        <google-client-loader id="gapi" on-google-api-load="ongapiLoaded" name="plus" version="v1"></google-client-loader>
-        <div class="input-wrapper" hidden$="{{showSeeker}}">
+        <google-client-loader id="gapi" on-google-api-load="_ongapiLoaded" name="plus" version="v1"></google-client-loader>
+        <button id="googleSignin">Sign in with Google</button>
+        <div id="inputWrapper" class="input-wrapper">
             <paper-input id="input" label="{{label}}" no-label-float on-keyup="_onType"></paper-input>
-            <paper-icon-button hidden$="{{showClear}}" id="clear" icon="clear" on-click="_clear"></paper-icon-button>
+            <paper-icon-button id="clear" icon="clear" on-click="_clear"></paper-icon-button>
         </div>
-        <paper-material hidden$="{{showSuggestions}}" elevation="1" id="suggestionsWrapper">
+        <paper-material elevation="1" id="suggestionsWrapper">
             <template is="dom-repeat" items="{{suggestions}}" as="item">
-                <paper-item on-click="_selectSuggestion">
+                <paper-item on-click="_onUserSelected">
                     <img src$="{{item.image.url}}" class="gpeople-avatar" alt$="{{item.displayName}}">
                     <div>{{item.displayName}}</div>
                     <paper-ripple></paper-ripple>
@@ -103,9 +137,9 @@ Example:
             label: String,
 
             /**
-             * `suggestionsInOverlay` Display the suggestions in an overlay above the next elements
+             * `clientId` Set the Google Client Id of your Project
              */
-            suggestionsInOverlay: Boolean
+            clientId: String
 
         },
 
@@ -119,55 +153,64 @@ Example:
             // This is the point where you should make modifications to the DOM (when
             // necessary), or kick off any processes the element wants to perform.
 
-            this.gapiLoaded = false;
             this.gapi;
+            this.gapiLoaded = false;
             this.suggestions = [];
             this.request;
-            this.showSeeker = false;
-        },
-
-        attached: function () {
-            // `attached` fires once the element and its parents have been inserted
-            // into a document.
-            //
-            // This is a good place to perform any work related to your element's
-            // visual state or active behavior (measuring sizes, beginning animations,
-            // loading resources, etc).
-        },
-
-        detached: function () {
-            // The analog to `attached`, `detached` fires when the element has been
-            // removed from a document.
-            //
-            // Use this to clean up anything you did in `attached`.
+            this.timeout;
         },
 
         // Element Behavior
-
 
         /**
          * Clears the input text
          */
         _clear: function () {
             this.$.input.value = '';
-            this.showClear = false;
+            this.suggestions = [];
+            this.$.clear.style.display = "none";
             this.value = undefined;
         },
 
         /**
-         * When Gplus API
-         *
+         * Wait for GAPI Loaded
          */
-        ongapiLoaded: function () {
+        _ongapiLoaded: function () {
+
+            var that = this;
             this.gapiLoaded = true;
             this.gapi = this.$.gapi.api;
-            this.$.gapi.auth.authorize({
-                client_id: '36368826216-ms9uic7h9a8pr6drl1ii5kmkctjaog7p.apps.googleusercontent.com',
-                scope: 'https://www.googleapis.com/auth/plus.me',
-                immediate: true
-            }, function () {
-                this.showSeeker = true
-            });
+
+            function checkAuth() {
+                that.$.gapi.auth.authorize({
+                    client_id: that.clientId,
+                    scope: 'https://www.googleapis.com/auth/plus.me',
+                    immediate: true
+                }, handleAuthResult);
+            }
+
+            function handleAuthResult(authResult) {
+                var authorizeButton = document.getElementById('authorize-button');
+                if (authResult && !authResult.error) {
+                    that.$.googleSignin.style.display = "none";
+                    that.$.inputWrapper.style.display = "block";
+                } else {
+                    that.$.googleSignin.style.display = 'block';
+                    that.$.googleSignin.onclick = handleAuthClick;
+                }
+            }
+
+            function handleAuthClick(event) {
+                that.$.gapi.auth.authorize({
+                    client_id: that.clientId,
+                    scope: 'https://www.googleapis.com/auth/plus.me',
+                    immediate: false
+                }, handleAuthResult);
+                return false;
+            }
+
+            checkAuth();
+
         },
 
         /**
@@ -181,23 +224,35 @@ Example:
             if (value && value.length > 0) {
                 value = value.toLowerCase();
                 // Shows the clear button.
-                this.showClear = true;
+                that.$.clear.style.display = "block";
 
                 // Search for the word in the source properties.
                 that.request = this.gapi.people.search({
                     'query': value
                 });
-                that.request.execute(function (resp) {
-                    that.suggestions = [];
-                    that.suggestions = resp.items || [];
-                    this.showSuggestions = that.suggestions.length > 0;
-                });
+
+                if (that.timeout) {
+                    clearTimeout(that.timeout);
+                }
+
+                this.timeout = window.setTimeout(function () {
+                    that.request.execute(function (resp) {
+                        that.suggestions = resp.items || [];
+                        that.$.suggestionsWrapper.style.display = (that.suggestions.length > 0) ? "block" : "none";
+                    });
+                }, 300);
+
             } else {
-                this.showClear = false;
-                this.showSuggestions = false;
+                that.$.clear.style.display = "none";
+                that.$.suggestionsWrapper.style.display = "none";
                 this.suggestions = [];
             }
         },
 
+        _onUserSelected: function (event) {
+            var selectedUser = this.suggestions[event.model.index];
+            this.fire('selected', selectedUser);
+            this._clear();
+        }
     });
 </script>
