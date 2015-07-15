@@ -1,6 +1,6 @@
 # google-people
 
-An element providing a starting point for your own reusable Polymer elements.
+An element that provides you a seeker for Google Plus People.
 
 
 ## Dependencies
