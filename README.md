@@ -2,6 +2,7 @@
 
 An element that provides you a seeker for Google Plus People.
 
+[Demo](http://emarinizquierdo.github.io/google-people/)
 
 ## Dependencies
 
