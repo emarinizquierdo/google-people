@@ -4,7 +4,7 @@
     "authors": [
     "Eduardo Marín Izquierdo <e.marin.izquierdo@gmail.com>"
   ],
-    "description": "An element providing a solution to no problem in particular.",
+    "description": "An web component to search for google from google plus network.",
     "keywords": [
     "web-component",
     "web-components",
@@ -13,7 +13,7 @@
   ],
     "main": "google-people.html",
     "license": "http://polymer.github.io/LICENSE.txt",
-    "homepage": "https://github.com/<USERNAME>/seed-element/",
+    "homepage": "https://github.com/emarinizquierdo/google-people",
     "ignore": [
     "/.*",
     "/test/",

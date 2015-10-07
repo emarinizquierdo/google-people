@@ -1,0 +1,28 @@
+{
+  "name": "google-people",
+  "version": "1.0.0",
+  "description": "An web component to search for google from google plus network.",
+  "main": "index.html",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "wct"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emarinizquierdo/google-people.git"
+  },
+  "keywords": [
+    "web-component",
+    "web-components",
+    "polymer",
+    "seed"
+  ],
+  "author": "eduardo marín izquierdo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/emarinizquierdo/google-people/issues"
+  },
+  "homepage": "https://github.com/emarinizquierdo/google-people#readme"
+}
