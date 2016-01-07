@@ -8,28 +8,24 @@ The complete set of contributors may be found at http://polymer.github.io/CONTRI
 Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
-<html>
 
-<head>
+<html>
+  <head>
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-    <title>google-people Demo</title>
-    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-    <link rel="import" href="../google-people.html">
-</head>
 
-<body>
+    <title>iron-collapse</title>
 
-    <p>An example of <code>&lt;google-people&gt;</code>:</p>
+    <script src="../webcomponentsjs/webcomponents-lite.js"></script>
 
-    <google-people id="my-google-people" label="Search People" client-id="182962898748-86gpfqsin2lv071rarrr5pr9rg5bahf0.apps.googleusercontent.com" on-user-selected="{{myApp.onUserSelected}}"></google-people>
+    <link rel="import" href="../polymer/polymer.html">
+    <link rel="import" href="../iron-component-page/iron-component-page.html">
 
-    <script>
-        document.querySelector('#my-google-people').addEventListener('selected', function (e) {
-            console.log(e.type, e.detail);
-        });
-    </script>
+  </head>
+  <body>
 
-</body>
+    <iron-component-page></iron-component-page>
 
+  </body>
 </html>
